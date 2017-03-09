@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <boost/iostreams/stream.hpp>
 #include <boost/program_options.hpp>
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -39,10 +41,27 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
 /**
  * Process a problem file
  */
-int process_problem_file()
+int process_problem_file(std::string filename)
 {
 	//TODO: Needs to take a file, and iterate line by line, adding a point
 	//to a vector of nodes.
+	/*
+	std::ifstream file(filename.c_str, std::ios_base::in | std::ios_base::binary);
+
+	file.exceptions(ifstream::failbit | ifstream::badbit);
+
+	try
+	{
+		boost::iostreams::stream in;
+		in.push(file);
+		for(std::string str; std::getline(in, str); )
+			std::cout << str << "\n";
+	}
+	catch(const ifstream::failure& e)
+	{
+		std::cout <<  "\n";
+	}
+	*/
 
 	// Create one point
 	bg::model::d2::point_xy<double> point(1, 2);
@@ -62,11 +81,11 @@ int main (int ac, char** av)
 	if ((r=process_program_options(ac, av, &vm)))
 		return r;
 
-	process_problem_file();
-
 	if (vm.count("input-file"))
-		std::cout << "Input file: " << 
-			vm["input-file"].as<std::string>() << "\n";
+	{
+		process_problem_file(vm["input-file"].as<std::string>());
+		std::cout << "Input file: " << vm["input-file"].as<std::string>() << "\n";
+	}
 
 	return 0;
 }
