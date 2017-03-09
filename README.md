@@ -12,7 +12,7 @@ node holds a unique identification number, an `x` and a `y` coordinate.
 ~~~~~~~~(shell)
 1 2 4
 3 20 40
-~~~~~~~~(shell)
+~~~~~~~~
 
 Run `salesperson` with `--input-file=<filename>` or as a positional argument.
 
