@@ -20,6 +20,8 @@ Run `salesperson` with `--input-file=<filename>` or as a positional argument.
 $ ./salesperson problem_set.txt
 ~~~~~~~~
 
+See all of the program options using `--help`.
+
 ~~~~~~~~(shell)
 $ ./salesperson --help
 Usage: saleperson [options] [input-file]:

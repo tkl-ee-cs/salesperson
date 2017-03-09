@@ -1,7 +1,10 @@
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/geometry/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 namespace po = boost::program_options;
+namespace bg = boost::geometry;
 
 /**
  * Process program options usint boost
@@ -38,6 +41,15 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
  */
 int process_problem_file()
 {
+	//TODO: Needs to take a file, and iterate line by line, adding a point
+	//to a vector of nodes.
+
+	// Create one point
+	bg::model::d2::point_xy<double> point(1, 2);
+
+	// Print the coordinates
+	std::cout << "point: " << bg::get<0>(point) << ", " << bg::get<1>(point) << "\n";
+
 	return 0;
 }
 
@@ -49,6 +61,8 @@ int main (int ac, char** av)
 
 	if ((r=process_program_options(ac, av, &vm)))
 		return r;
+
+	process_problem_file();
 
 	if (vm.count("input-file"))
 		std::cout << "Input file: " << 
