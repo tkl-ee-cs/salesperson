@@ -15,6 +15,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
 
+using std::cout;
+using std::endl;
 namespace po = boost::program_options;
 namespace bg = boost::geometry;
 
@@ -68,8 +70,9 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
 	p.add("input-file", -1);
 
 	desc.add_options()
-		("help", "produce help message")
-		("input-file", po::value<std::string>(), "supply problem input file")
+		("help,h", "produce help message")
+		("input-file,i", po::value<std::string>(), "supply problem input file")
+		("debug,d", "print debug information")
 	;
 
 	po::store(po::command_line_parser(ac, av)
@@ -79,7 +82,7 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
 
 	if (vm->count("help") || ac < 2)
 	{
-		std::cout << desc << "\n";
+		std::cout << desc << endl;
 		return 1;
 	}
 
@@ -89,7 +92,7 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
 /**
  * Process a problem file
  */
-int process_problem_file(std::string filename)
+int process_problem_file(std::string filename, bool debug)
 {
 	//TODO:
 	// - needs to error check for double spaces, see todo about boost::split
@@ -132,9 +135,12 @@ int process_problem_file(std::string filename)
 				str.size() - str.find(' ', idx+1))
 			);
 
-			std::cout << "line: " << str << "\n";
-			std::cout << "x: " << x << ".\n";
-			std::cout << "y: " << y << ".\n";
+			if (debug)
+			{
+				cout << "line: " << str << endl;
+				cout << "x: " << x << endl;
+				cout << "y: " << y << endl;
+			}
 
 			vertex.x = boost::lexical_cast<double>(x);
 			vertex.y = boost::lexical_cast<double>(y);
@@ -146,13 +152,17 @@ int process_problem_file(std::string filename)
 	}
 	catch(const std::ifstream::failure& e)
 	{
-		std::cout << e.what() << "\n";
+		cout << e.what() << endl;
 	}
+
+	if (debug) cout << "Finished processing" << filename << std::endl;
 
 	VertexContainer c;
 	Graph g(position_vec.size());
 	WeightMap weight_map(get(boost::edge_weight, g));
 	VertexMap v_map = get(boost::vertex_index, g);
+
+	if (debug) cout << "Finished init of graph" << filename << std::endl;
 
 	connect_vertex_map(g, position_vec, weight_map, v_map, n);
 	return 0;
@@ -164,13 +174,14 @@ int main (int ac, char** av)
 
 	int r = 0;
 
+	// return if we get a failure parsing program options
 	if ((r=process_program_options(ac, av, &vm)))
 		return r;
 
 	if (vm.count("input-file"))
 	{
-		process_problem_file(vm["input-file"].as<std::string>());
-		std::cout << "Input file: " << vm["input-file"].as<std::string>() << "\n";
+		// process the input file
+		process_problem_file(vm["input-file"].as<std::string>(), vm.count("debug"));
 	}
 
 	return 0;

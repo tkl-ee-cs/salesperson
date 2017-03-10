@@ -23,8 +23,9 @@ $ ./salesperson problem_set.txt
 See all of the program options using `--help`.
 
 ~~~~~~~~(shell)
-$ ./salesperson --help
-Usage: saleperson [options] [input-file]:
-  --help                produce help message
-  --input-file arg      supply problem input file
-~~~~~~~~
+./salesperson --help
+Usage: salepesrson [options] [input-file]:
+  -h [ --help ]           produce help message
+  -i [ --input-file ] arg supply problem input file
+  -d [ --debug ]          print debug information
+$ ~~~~~~~~
