@@ -6,19 +6,16 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <boost/program_options.hpp>
 #include <boost/graph/simple_point.hpp>
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
 
 using std::cout;
 using std::endl;
 namespace po = boost::program_options;
-namespace bg = boost::geometry;
 
 /**
  * Process program options usint boost
@@ -130,14 +127,13 @@ int create_some_graph(PositionVector *position_vec, int n)
 }
 
 /**
- * Process a problem file
+ * Process a file of vertices
  */
 int process_problem_file(std::string filename, bool debug)
 {
-	//TODO:
-	// - needs to error check for double spaces, see todo about boost::split
-	// - use some namespaces.
+	//TODO: What to do with the first value?
 
+	using std::string;
 	using std::vector;
 	using boost::simple_point;
 
@@ -157,17 +153,19 @@ int process_problem_file(std::string filename, bool debug)
 		{
 			simple_point<double> vertex;
 
-			size_t idx(str.find(' '));
+			string x;
+			string y;
 
-			// TODO: replace with boost split
-			std::string x(
-				str.substr(idx+1,
-				str.size() - ((idx+1) + (str.size()-(str.find(' ', idx+1))))
-			));
-			std::string y(
-				str.substr(str.find(' ', idx+1)+1,
-				str.size() - str.find(' ', idx+1))
-			);
+			boost::char_separator<char> sep(" ");
+			boost::tokenizer<boost::char_separator<char> > tokens(str, sep);
+			for (auto t = tokens.begin(); t != tokens.end(); ++t)
+			{
+				auto & v = *t;
+				if (t != tokens.begin() && std::next(t) != tokens.end())
+					x = v;
+				else if (std::next(t) == tokens.end())
+					y = v;
+			}
 
 			if (debug)
 			{
