@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <boost/iostreams/stream.hpp>
 #include <boost/program_options.hpp>
 #include <boost/geometry/geometry.hpp>
@@ -45,29 +46,25 @@ int process_problem_file(std::string filename)
 {
 	//TODO: Needs to take a file, and iterate line by line, adding a point
 	//to a vector of nodes.
-	/*
-	std::ifstream file(filename.c_str, std::ios_base::in | std::ios_base::binary);
+	std::ifstream file(filename.c_str());
 
-	file.exceptions(ifstream::failbit | ifstream::badbit);
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 	try
 	{
-		boost::iostreams::stream in;
-		in.push(file);
-		for(std::string str; std::getline(in, str); )
+		// store some points in a vector/graph here
+		for(std::string str; std::getline(file, str); )
 			std::cout << str << "\n";
 	}
-	catch(const ifstream::failure& e)
+	catch(const std::ifstream::failure& e)
 	{
 		std::cout <<  "\n";
 	}
-	*/
 
 	// Create one point
 	bg::model::d2::point_xy<double> point(1, 2);
 
-	// Print the coordinates
-	std::cout << "point: " << bg::get<0>(point) << ", " << bg::get<1>(point) << "\n";
+	// Print the coordinates std::cout << "point: " << bg::get<0>(point) << ", " << bg::get<1>(point) << "\n";
 
 	return 0;
 }
