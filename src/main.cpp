@@ -1,10 +1,15 @@
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include <string>
+
+#include <boost/lexical_cast.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/program_options.hpp>
+#include <boost/graph/simple_point.hpp>
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace po = boost::program_options;
 namespace bg = boost::geometry;
@@ -14,7 +19,7 @@ namespace bg = boost::geometry;
  */
 int process_program_options(int ac, char** av, po::variables_map *vm)
 {
-	po::options_description desc("Usage: saleperson [options] [input-file]");
+	po::options_description desc("Usage: salepesrson [options] [input-file]");
 
 	po::positional_options_description p;
 
@@ -44,21 +49,53 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
  */
 int process_problem_file(std::string filename)
 {
-	//TODO: Needs to take a file, and iterate line by line, adding a point
-	//to a vector of nodes.
+	//TODO: create a graph for the positionvecs
+
+	typedef std::vector<boost::simple_point<double> > PositionVec;
+
 	std::ifstream file(filename.c_str());
 
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	file.exceptions(std::ifstream::badbit);
+
+	PositionVec position_vec;
 
 	try
 	{
 		// store some points in a vector/graph here
-		for(std::string str; std::getline(file, str); )
-			std::cout << str << "\n";
+		std::string str;
+		int n(0);
+		while (std::getline(file, str))
+		{
+			boost::algorithm::trim(str);
+			boost::simple_point<double> vertex;
+
+			size_t idx(str.find(' '));
+
+			// TODO: replace with boost split
+			std::string x(
+				str.substr(idx+1,
+				str.size() - ((idx+1) + (str.size()-(str.find(' ', idx+1))))
+			));
+			std::string y(
+				str.substr(str.find(' ', idx+1)+1,
+				str.size() - str.find(' ', idx+1))
+			);
+
+			std::cout << "line: " << str << "\n";
+			std::cout << "x: " << x << ".\n";
+			std::cout << "y: " << y << ".\n";
+
+			vertex.x = boost::lexical_cast<double>(x);
+			vertex.y = boost::lexical_cast<double>(y);
+
+			position_vec.push_back(vertex);
+			n++;
+		}
+		file.close();
 	}
 	catch(const std::ifstream::failure& e)
 	{
-		std::cout <<  "\n";
+		std::cout << e.what() << "\n";
 	}
 
 	// Create one point
