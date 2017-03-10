@@ -1,3 +1,5 @@
+/* vim: set tabstop=4 shiftwidth=4 */
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -10,10 +12,50 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/adjacency_matrix.hpp>
 
 namespace po = boost::program_options;
 namespace bg = boost::geometry;
 
+template<typename VertexListGraph, typename PointContainer, typename WeightMap,
+	typename VertexIndexMap>
+void connect_vertex_map(VertexListGraph& g, const PointContainer& points,
+		WeightMap wmap,
+		VertexIndexMap vmap,
+		int /*size*/)
+{
+	using std::pow;
+	using std::sqrt;
+	typedef typename boost::graph_traits<VertexListGraph>::edge_descriptor
+		Edge;
+
+	typedef typename boost::graph_traits<VertexListGraph>::vertex_iterator
+		VIter;
+
+	Edge e;
+	bool inserted;
+
+	std::pair<VIter, VIter> verts(vertices(g));
+	for (VIter src(verts.first); src != verts.second; src++)
+	{
+		for (VIter dest(src); dest != verts.second; dest++)
+		{
+			if (dest != src)
+			{
+				double weight(sqrt(
+					pow(static_cast<double>(points[vmap[*src]].x -
+						points[vmap[*dest]].x), 2.0) +
+					pow(static_cast<double>(points[vmap[*dest]].y -
+						points[vmap[*src]].y), 2.0)));
+
+				boost::tie(e, inserted) = boost::add_edge(*src, *dest, g);
+
+				wmap[e] = weight;
+			}
+		}
+	}
+}
 /**
  * Process program options usint boost
  */
@@ -49,9 +91,19 @@ int process_program_options(int ac, char** av, po::variables_map *vm)
  */
 int process_problem_file(std::string filename)
 {
-	//TODO: create a graph for the positionvecs
+	//TODO:
+	// - needs to error check for double spaces, see todo about boost::split
+	// - use some namespaces.
 
 	typedef std::vector<boost::simple_point<double> > PositionVec;
+	typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
+		boost::property <boost::edge_weight_t, double> > Graph;
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+	typedef std::vector<Vertex> VertexContainer;
+
+	typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
+	typedef boost::property_map<Graph, boost::vertex_index_t>::type VertexMap;
 
 	std::ifstream file(filename.c_str());
 
@@ -59,11 +111,10 @@ int process_problem_file(std::string filename)
 
 	PositionVec position_vec;
 
+	int n(0);
 	try
 	{
-		// store some points in a vector/graph here
 		std::string str;
-		int n(0);
 		while (std::getline(file, str))
 		{
 			boost::algorithm::trim(str);
@@ -98,11 +149,12 @@ int process_problem_file(std::string filename)
 		std::cout << e.what() << "\n";
 	}
 
-	// Create one point
-	bg::model::d2::point_xy<double> point(1, 2);
+	VertexContainer c;
+	Graph g(position_vec.size());
+	WeightMap weight_map(get(boost::edge_weight, g));
+	VertexMap v_map = get(boost::vertex_index, g);
 
-	// Print the coordinates std::cout << "point: " << bg::get<0>(point) << ", " << bg::get<1>(point) << "\n";
-
+	connect_vertex_map(g, position_vec, weight_map, v_map, n);
 	return 0;
 }
 
