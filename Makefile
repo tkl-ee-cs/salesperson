@@ -1,5 +1,5 @@
 TARGET = salesperson
-CPPFLAGS = -Wall -std=c++14
+CPPFLAGS = -Wall -std=c++11
 SRC_DIR = src
 
 $(TARGET) : $(SRC_DIR)/main.cpp
