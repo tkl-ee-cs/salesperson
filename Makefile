@@ -1,9 +1,9 @@
 TARGET = salesperson
-CFLAGS = -Wall
+CPPFLAGS = -Wall -std=c++14
 SRC_DIR = src
 
 $(TARGET) : $(SRC_DIR)/main.cpp
-	g++ $< -o $@ -lboost_program_options
+	g++ $(CPPFLAGS) $< -o $@ -lboost_program_options
 
 clean :
 	rm -f $(TARGET) *.o

@@ -20,6 +20,43 @@ using std::endl;
 namespace po = boost::program_options;
 namespace bg = boost::geometry;
 
+/**
+ * Process program options usint boost
+ */
+int process_program_options(int ac, const char** av, po::variables_map *vm)
+{
+	po::options_description desc("Usage: salesperson [options] [input-file]");
+
+	po::positional_options_description p;
+
+	p.add("input-file", -1);
+
+	desc.add_options()
+		("help,h", "produce help message")
+		("input-file,i", po::value<std::string>(), "supply problem input file")
+		("debug,d", "print debug information")
+		("print,p", "print node information")
+	;
+
+	po::store(po::command_line_parser(ac, av)
+			.options(desc).positional(p).run(), *vm);
+
+	po::notify(*vm);
+
+	if (vm->count("help") || ac < 2)
+	{
+		std::cout << desc << endl;
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Connect the vertices in a graph G. For some vertex u from G create a table
+ * such that each cell in the table holds the distance from u to every other
+ * vertex in graph G.
+ */
 template<typename VertexListGraph, typename PointContainer, typename WeightMap,
 	typename VertexIndexMap>
 void connect_vertex_map(VertexListGraph& g, const PointContainer& points,
@@ -58,33 +95,36 @@ void connect_vertex_map(VertexListGraph& g, const PointContainer& points,
 		}
 	}
 }
-/**
- * Process program options usint boost
- */
-int process_program_options(int ac, char** av, po::variables_map *vm)
+
+template<typename PositionVector>
+void print_position_vector(PositionVector *pos_vec)
 {
-	po::options_description desc("Usage: salesperson [options] [input-file]");
+	using std::vector;
+	using boost::simple_point;
 
-	po::positional_options_description p;
+	for (vector<simple_point<double> >::iterator itr = pos_vec->begin(); itr != pos_vec->end(); ++itr++)
+		cout << "(" << itr->x << ", " << itr->y << ")" << endl;
+}
 
-	p.add("input-file", -1);
+template<typename PositionVector>
+int create_some_graph(PositionVector *position_vec, int n)
+{
+	typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
+		boost::property <boost::edge_weight_t, double> > Graph;
+	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+	typedef std::vector<Vertex> VertexContainer;
+	typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
+	typedef boost::property_map<Graph, boost::vertex_index_t>::type VertexMap;
 
-	desc.add_options()
-		("help,h", "produce help message")
-		("input-file,i", po::value<std::string>(), "supply problem input file")
-		("debug,d", "print debug information")
-	;
+	VertexContainer c;
+	Graph g(position_vec->size());
 
-	po::store(po::command_line_parser(ac, av)
-			.options(desc).positional(p).run(), *vm);
+	WeightMap weight_map(get(boost::edge_weight, g));
+	VertexMap v_map = get(boost::vertex_index, g);
 
-	po::notify(*vm);
+	connect_vertex_map(g, *position_vec, weight_map, v_map, n);
 
-	if (vm->count("help") || ac < 2)
-	{
-		std::cout << desc << endl;
-		return 1;
-	}
+	print_position_vector(position_vec);
 
 	return 0;
 }
@@ -98,15 +138,10 @@ int process_problem_file(std::string filename, bool debug)
 	// - needs to error check for double spaces, see todo about boost::split
 	// - use some namespaces.
 
-	typedef std::vector<boost::simple_point<double> > PositionVec;
-	typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
-		boost::property <boost::edge_weight_t, double> > Graph;
+	using std::vector;
+	using boost::simple_point;
 
-	typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-	typedef std::vector<Vertex> VertexContainer;
-
-	typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
-	typedef boost::property_map<Graph, boost::vertex_index_t>::type VertexMap;
+	typedef vector<simple_point<double> > PositionVec;
 
 	std::ifstream file(filename.c_str());
 
@@ -120,8 +155,7 @@ int process_problem_file(std::string filename, bool debug)
 		std::string str;
 		while (std::getline(file, str))
 		{
-			boost::algorithm::trim(str);
-			boost::simple_point<double> vertex;
+			simple_point<double> vertex;
 
 			size_t idx(str.find(' '));
 
@@ -138,8 +172,8 @@ int process_problem_file(std::string filename, bool debug)
 			if (debug)
 			{
 				cout << "line: " << str << endl;
-				cout << "x: " << x << endl;
-				cout << "y: " << y << endl;
+				cout << "x: " << x << endl
+				     << "y: " << y << endl;
 			}
 
 			vertex.x = boost::lexical_cast<double>(x);
@@ -157,18 +191,11 @@ int process_problem_file(std::string filename, bool debug)
 
 	if (debug) cout << "Finished processing" << filename << std::endl;
 
-	VertexContainer c;
-	Graph g(position_vec.size());
-	WeightMap weight_map(get(boost::edge_weight, g));
-	VertexMap v_map = get(boost::vertex_index, g);
-
-	if (debug) cout << "Finished init of graph" << filename << std::endl;
-
-	connect_vertex_map(g, position_vec, weight_map, v_map, n);
+	create_some_graph(&position_vec, n);
 	return 0;
 }
 
-int main (int ac, char** av)
+int main (int ac, const char** av)
 {
 	po::variables_map vm;
 
@@ -178,11 +205,17 @@ int main (int ac, char** av)
 	if ((r=process_program_options(ac, av, &vm)))
 		return r;
 
-	if (vm.count("input-file"))
+	// If an input-file hasn't been provided, display help and exit with error.
+	if (!vm.count("input-file"))
 	{
-		// process the input file
-		process_problem_file(vm["input-file"].as<std::string>(), vm.count("debug"));
+		const char *arg_help[2] = {"0", "--help"};
+		process_program_options(2, arg_help, &vm);
+		return -1;
 	}
+
+	// proccess the file
+	// TODO: uses class or bring vars to main()?
+	process_problem_file(vm["input-file"].as<std::string>(), vm.count("debug"));
 
 	return 0;
 }
