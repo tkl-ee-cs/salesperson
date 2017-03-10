@@ -24,7 +24,7 @@ See all of the program options using `--help`.
 
 ~~~~~~~~(shell)
 ./salesperson --help
-Usage: salepesrson [options] [input-file]:
+Usage: salesperson [options] [input-file]:
   -h [ --help ]           produce help message
   -i [ --input-file ] arg supply problem input file
   -d [ --debug ]          print debug information

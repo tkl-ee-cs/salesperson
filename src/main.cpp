@@ -63,7 +63,7 @@ void connect_vertex_map(VertexListGraph& g, const PointContainer& points,
  */
 int process_program_options(int ac, char** av, po::variables_map *vm)
 {
-	po::options_description desc("Usage: salepesrson [options] [input-file]");
+	po::options_description desc("Usage: salesperson [options] [input-file]");
 
 	po::positional_options_description p;
 
