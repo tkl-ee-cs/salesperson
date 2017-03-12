@@ -8,8 +8,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <boost/graph/simple_point.hpp>
 #include <boost/program_options.hpp>
+#include <boost/graph/simple_point.hpp>
+#include <boost/graph/metric_tsp_approx.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
 
@@ -105,9 +106,13 @@ void print_position_vector(PositionVector *pos_vec)
         cout << "(" << itr->x << ", " << itr->y << ")" << endl;
 }
 
+/**
+ * A routine to generate the graph
+ */
 template<typename PositionVector>
 int create_some_graph(PositionVector *position_vec, int n)
 {
+    using std::vector;
     typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
         boost::property <boost::edge_weight_t, double> > Graph;
     typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
@@ -124,6 +129,33 @@ int create_some_graph(PositionVector *position_vec, int n)
     connect_vertex_map(g, *position_vec, weight_map, v_map, n);
 
     print_position_vector(position_vec);
+
+    //return 0;
+
+    boost::metric_tsp_approx_tour(g, std::back_inserter(c));
+
+    double total(0);
+    for (vector<Vertex>::iterator itr = c.begin(); itr != c.end(); ++itr)
+    {
+        cout << *itr << " ";
+        total += boost::lexical_cast<double>(*itr);
+    }
+
+    cout << endl << "total = " << total << endl;
+
+    c.clear();
+
+    total = 0;
+    boost::metric_tsp_approx_from_vertex(g, *vertices(g).first,
+        get(boost::edge_weight, g), get(boost::vertex_index, g),
+        boost::tsp_tour_visitor<std::back_insert_iterator<vector<Vertex> > >
+        (std::back_inserter(c)));
+    for (vector<Vertex>::iterator itr = c.begin(); itr != c.end(); ++itr)
+    {
+        cout << *itr << " ";
+        total += boost::lexical_cast<double>(*itr);
+    }
+    cout << endl << total << endl;
 
     return 0;
 }
@@ -208,6 +240,7 @@ int main (int ac, const char** av)
     // If an input-file hasn't been provided, display help and exit with error.
     if (!vm.count("input-file"))
     {
+        //TODO: un-const this by using char** arg_help = {}
         const char *arg_help[2] = {"0", "--help"};
         process_program_options(2, arg_help, &vm);
         return -1;
