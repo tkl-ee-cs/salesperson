@@ -1,10 +1,21 @@
+# Program specific file types
+*.output
+*.tour
+
+# Vim swap files
 *.swp
 *.swo
 
+# Target binary
 salesperson
 
+# LaTeX related build files
 *.aux
 *.fdb_*
 *.fls
 *.log
 *.gz
+
+# Graphviz dot files & related
+*.dot
+*.png

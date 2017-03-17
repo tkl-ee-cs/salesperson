@@ -1,4 +1,4 @@
-/* vim: set tabstop=4 shiftwidth=4 expandtab */
+/* vim: set tabstop=4 shiftwidth=4 expandtab : */
 
 #include <iostream>
 #include <vector>
@@ -13,6 +13,7 @@
 #include <boost/graph/metric_tsp_approx.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
+#include <boost/graph/graphviz.hpp>
 
 using std::cout;
 using std::endl;
@@ -113,14 +114,26 @@ template<typename PositionVector>
 int create_some_graph(PositionVector *position_vec, int n)
 {
     using std::vector;
+
+    // Give ourselves a Graph type
     typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
         boost::property <boost::edge_weight_t, double> > Graph;
+
+    // Define Vertex type
     typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef std::vector<Vertex> VertexContainer;
+
+    // Define type VertexContainer to hold elements of type Vertex
+    typedef vector<Vertex> VertexContainer;
+
+    // Define type WeightMap to hold a weight map of the graph
     typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
+
+    // Define type VertexMap to hold a vertex map
     typedef boost::property_map<Graph, boost::vertex_index_t>::type VertexMap;
 
+    // A container of vertices
     VertexContainer c;
+    // The graph
     Graph g(position_vec->size());
 
     WeightMap weight_map(get(boost::edge_weight, g));
@@ -130,6 +143,7 @@ int create_some_graph(PositionVector *position_vec, int n)
 
     print_position_vector(position_vec);
 
+    //lazy short circuit to avoid approx tour
     //return 0;
 
     boost::metric_tsp_approx_tour(g, std::back_inserter(c));
@@ -161,15 +175,44 @@ int create_some_graph(PositionVector *position_vec, int n)
 }
 
 /**
+ * Write a file
+ */
+template<typename Iterator>
+int write_a_file(Iterator begin, Iterator end, std::string filename)
+{
+    std::ofstream file(filename.c_str());
+
+    file.exceptions(std::ofstream::badbit);
+
+    try
+    {
+        for (; begin != end; ++begin)
+            file << *begin;
+
+        file << std::endl;
+    }
+    catch(const std::ofstream::failure& e)
+    {
+        cout << e.what() << endl;
+    }
+
+    file.close();
+
+    return 0;
+}
+
+/**
  * Process a file of vertices
  */
-int process_problem_file(std::string filename, bool debug)
+int process_problem_file (std::string filename, bool debug)
 {
     //TODO: What to do with the first value?
 
+    using std::cout;
     using std::string;
     using std::vector;
     using boost::simple_point;
+    using boost::lexical_cast;
 
     typedef vector<simple_point<double> > PositionVec;
 
@@ -182,7 +225,7 @@ int process_problem_file(std::string filename, bool debug)
     int n(0);
     try
     {
-        std::string str;
+        string str;
         while (std::getline(file, str))
         {
             simple_point<double> vertex;
@@ -192,6 +235,7 @@ int process_problem_file(std::string filename, bool debug)
 
             boost::char_separator<char> sep(" ");
             boost::tokenizer<boost::char_separator<char> > tokens(str, sep);
+
             for (auto t = tokens.begin(); t != tokens.end(); ++t)
             {
                 auto & v = *t;
@@ -208,8 +252,8 @@ int process_problem_file(std::string filename, bool debug)
                      << "y: " << y << endl;
             }
 
-            vertex.x = boost::lexical_cast<double>(x);
-            vertex.y = boost::lexical_cast<double>(y);
+            vertex.x = lexical_cast<double>(x);
+            vertex.y = lexical_cast<double>(y);
 
             position_vec.push_back(vertex);
             n++;
@@ -223,7 +267,21 @@ int process_problem_file(std::string filename, bool debug)
 
     if (debug) cout << "Finished processing" << filename << std::endl;
 
+    // TODO: move this outside of this function to main
     create_some_graph(&position_vec, n);
+    return 0;
+}
+
+int run_simulation (po::variables_map *vm)
+{
+    // TODO: move graph creation to the 'run' routine
+
+    // Process the problem file supplied in args
+    process_problem_file((*vm)["input-file"].as<std::string>(),
+            vm->count("debug"));
+
+    // TODO: generate graphviz representation, requires graph reference
+    //boost::write_graphviz(std::cout, g);
     return 0;
 }
 
@@ -246,9 +304,11 @@ int main (int ac, const char** av)
         return -1;
     }
 
-    // proccess the file
-    // TODO: uses class or bring vars to main()?
-    process_problem_file(vm["input-file"].as<std::string>(), vm.count("debug"));
+    // Run the graph simulation
+    run_simulation(&vm);
 
+    std::string file_data("something");
+    std::string output_file("some_output.log");
+    write_a_file(file_data.begin(), file_data.end(), output_file);
     return 0;
 }
