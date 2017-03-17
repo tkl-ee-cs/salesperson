@@ -1,32 +1,27 @@
 \documentclass[margin=5mm]{standalone}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\newcommand\nuniq{{\operatorname{non-unique}}}
 
 \begin{document}
-  \section{Algorithms}
-
-  \subsection{Christofide}
-
-  \subsection{Greedy heuristic}
-    The complexity of the greedy heuristic approach  is $O(n^2\log_2(n))$. The
-    solution produced will be $15-20\%$ within the Held-Karp lower bound.
-
-    \begin{itemize}
-      \item Sort the edges $E$ of graph $G=(V,E)$.
-      \item From the edges, select the shortest and add it to the final tour.
-            the edge may not be added to our tour if it violates the following
-            conditions.
-
-            \begin{enumerate}
-              \item Tour cannot have a cycle of less than $N$ edges.
-              \item No node may have a degree greater than 2.
-            \end{enumerate}
-      \item Has the the tour accumulated $N$ edges? If not, repeat the previous
-            step.
-    \end{itemize}
-    
-  \subsection{Approximate Approaches}
-
-  \subsubsection{2-opt & 3-opt}
-
-  \subsubsection{}
-
+  \section{Aglorithms}
+    \subsection{Approximate Approaches}
+    \subsubsection{Christofide}
+    \subsubsection{Greedy Heuristic}
+      The complexity of the greedy heuristic approach  is $O(n^2\log_2(n))$. The
+      solution produced will be $15\% \operatorname{-} 20\%$ within the
+      Held-Karp lower bound.
+      \begin{enumerate}
+        \item Sort the edges $E$, of graph $G=(V,E)$, by distance.
+        \item From the available edges, select the shortest, and add it to the
+              final tour. The edge may not be added to our tour if it violates
+              the following conditions.
+              \begin{enumerate}
+                \item Tour cannot have a cycle of less than $N$ edges.
+                \item No node may have a degree greater than 2.
+              \end{enumerate}
+        \item Has the the tour accumulated $N$ edges? If not, repeat the previous step.
+      \end{enumerate}
+    \subsubsection{2-opt \& 3-opt}
+    \subsection{Genetic Algorithm}
 \end{document}
