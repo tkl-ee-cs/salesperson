@@ -180,6 +180,9 @@ int create_some_graph(PositionVector *position_vec, int n)
 template<typename Iterator>
 int write_a_file(Iterator begin, Iterator end, std::string filename)
 {
+    //TODO: Ensure that we can take a vector/list of items to be written.
+    // The list can be used to supply formatting to a 'dumb' function.
+
     std::ofstream file(filename.c_str());
 
     file.exceptions(std::ofstream::badbit);
@@ -307,8 +310,15 @@ int main (int ac, const char** av)
     // Run the graph simulation
     run_simulation(&vm);
 
+    // Small example demonstrating how to pass "front" and "back" iterators --
+    // begin() and end() respectively -- to a function that writes to a file
+    // of a provided filename.
+    //
+    // A function taking iterators can take iterators of any STL class and
+    // and reuse a parsing pattern.
+    //
     std::string file_data("something");
-    std::string output_file("some_output.log");
-    write_a_file(file_data.begin(), file_data.end(), output_file);
+    std::string output_filename("some_output.log");
+    write_a_file(file_data.begin(), file_data.end(), output_filename);
     return 0;
 }
