@@ -20,7 +20,7 @@ using std::endl;
 namespace po = boost::program_options;
 
 /**
- * Process program options usint boost
+ * Process program options using boost::program_options
  */
 int process_program_options(int ac, const char** av, po::variables_map *vm)
 {
