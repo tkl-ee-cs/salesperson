@@ -7,6 +7,7 @@
 \usepackage{amsmath, amssymb}
 
 \usepackage[section]{placeins}
+\usepackage{float}
 
 \setlength\parindent{0pt}
 
@@ -58,9 +59,9 @@ spanning tree.
 
 \FloatBarrier
 
-\begin{algorithm}
-  \caption{Christofide}
-  \label{alg1}
+%\begin{algorithm}[tbh]
+%  \caption{Christofide}
+%  \label{alg_christofide}
   \begin{algorithmic}[1]
     \Procedure {Christofide}{$\{G=(V,E),\ s\}$}
 
@@ -70,14 +71,89 @@ spanning tree.
     \EndFor
 
     \State $s_{\textit{key} = 0}$
+    \\
+    \State $K \gets \textit{min-priority queue based on } v_{\textit{key}}$
 
-    \While {$|k|$}
+    \State $K \gets {v \in V}$
+
+    \While {$|K|$}
+      \State $x \gets \textit{dequeue}(K)$
+      \For {$\{ u \mid u \in N(x)$}
+        \If {$u \in K \land \textit{distance}(x, u) < u_{\textit{key}}$}
+          \State $u_{\textit{parent}} = x$
+          \State $u_{\textit{key}} = \textit{distance}(u, x)$
+        \EndIf
+      \EndFor
+    \EndWhile
+    \\
+    \State $G_{MST} \gets \textit{MST}(G)$
+
+    \State $V_{\textit{odd}} \gets \textit{set of odd vertices from }G_{MST}$
+
+    \For {$\{ v \mid v \in G_{MST} \}$}
+      \State $d = 0$
+
+      \For {$\{ u \mid v \in G_{MST} \}$}
+        \State $d \gets d + 1$
+        \If {$d \text{ mod } 2 \neq 0$}
+          \State $V_{\textit{odd}} \gets V_{\textit{odd}} \cup u$
+        \EndIf
+      \EndFor
+    \EndFor
+    \\
+    \While {$|V_{\textit{odd}}|$}
+      \State $x \gets \textit{ a vertex removed from } V_{\textit{odd}}$
+      \State $d \gets \infty$
+
+      \For {$\{ v \mid v \in V_{\textit{odd}} \}$}
+
+        \If {$\textit{distance}(v, x) < d$}
+          \State $d \gets \textit{distance}(v, x)$
+          \State $\textit{match} \gets v$
+        \EndIf
+
+        \State $A(G_{MST}) \gets A(G_{MST}) \cup \textit{match}$
+        \State $G_{\textit{odd}} \gets G_{\textit{odd}} - \textit{match}$
+
+      \EndFor
 
     \EndWhile
 
+    \State Initialize stack for vertices
+    \State Initialize an array or queue called tour
+    \State Current = s
+    \State Put Current in tour
+
+    \While{$|N(current)|$}
+      \If {$|N(current)$}
+        \State temp = current
+        \State current = first vertex in $A(V_{MST})$
+        \State push temp onto stack
+        \State remove temp from $A(V_{MST})$
+        \State remove current from $N(temp)$
+      \Else
+        \State add current to tour
+        \State current = pop stack
+      \EndIf
+    \EndWhile
+
+    \For {$\{ v | v \in \text{tour} \}$}
+      \State vertexInTour = 0
+      \For {$\{ u | u \in \text{tour} \}$}
+        \If {$v \implies u$}
+          \State vertexInTour++
+        \EndIf
+        \If {vertexInTour $> 1$}
+          \State remove u from tour
+        \EndIf
+      \EndFor
+    \EndFor
     \EndProcedure
   \end{algorithmic}
-\end{algorithm}
-
+%\end{algorithm}
+\par
 \FloatBarrier
+
+\clearpage
+\newpage
 \end{document}
