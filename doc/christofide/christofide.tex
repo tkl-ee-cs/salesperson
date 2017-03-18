@@ -6,17 +6,19 @@
 \usepackage{enumitem}
 \usepackage{amsmath, amssymb}
 
+\usepackage[section]{placeins}
+
 \setlength\parindent{0pt}
 
 \begin{document}
 
-\section{Christofide}
-\subsection{Background}
+\section{Christofide Heuristic}
+
 The Christofides algorithm improves on the 2-approximation algorithm, providing
 a worst case ratio of $3/2$ at the cost of increasing the running time to
 $O(n^3)$ [1].\\
 
-It can be summarized with the following steps:
+The following steps summarize the Christofide algorithm:
 \begin{itemize}
   \item Using the entire graph, build a minimum-spanning tree Make a set of
         vertices
@@ -54,6 +56,8 @@ Below in the pseudocode for the algorithm. Note that it combines the step of
 finding a minimum weight matching with the one that combines it with the minimum
 spanning tree.
 
+\FloatBarrier
+
 \begin{algorithm}
   \caption{Christofide}
   \label{alg1}
@@ -75,5 +79,5 @@ spanning tree.
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Works Cited}
+\FloatBarrier
 \end{document}
