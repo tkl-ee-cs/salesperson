@@ -1,0 +1,21 @@
+\documentclass{article}
+\usepackage{standalone}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{enumitem}
+\usepackage{amsmath, amssymb}
+\begin{document}
+
+  \section{Introduction}
+  Starting our research, there were a plethora of information on the various
+  methods to obtain or at least approximate an optimal traveling salesman tour.
+  We found a variety of algorithms and heuristic approaches. Some were
+  straightforward such the nearest neighbor heuristic, while others had a more
+  methodical approach to approximating an optimal tour. After some deliberation
+  we decided upon the Christofides approximation algorithm as there seemed to be
+  ample documentation regarding the algorithm as well a quality that would
+  satisfy the required bounds.
+
+  \input{"../christofide/christofide"}
+\end{document}
