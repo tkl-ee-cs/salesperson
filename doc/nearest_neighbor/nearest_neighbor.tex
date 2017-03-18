@@ -1,0 +1,70 @@
+\documentclass{article}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{enumitem}
+\usepackage{amsmath, amssymb}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+\section{Nearest Neighbor Heuristic}
+
+\subsection{Description}
+
+The nearest neighbor heuristic was one first method that we encountered. It is
+one of the most straightforward approaches. The heuristic is not so unlike how
+we would browse a museum. Similar to how we would start by picking a point of
+interest, the nearest neighbor heuristic begins at a single node. Then like
+touring a museum, we pick the next closest exhibit or display, and continue
+going through the museum avoiding things we’ve seen. The nearest neighbor
+heuristic works the same way, it identifies the unvisited “nearest neighbor” to
+the current node, and traverses the graph until all unvisited nodes have been
+seen once.
+
+\subsection{Pseudocode}
+
+\begin{algorithm}
+  \caption{Nearest\ Neighbor}
+  \label{alg1}
+  \begin{algorithmic}[1]
+    \Procedure {Nearest\ Neighbor}{$\{G=(V,E),\ s\}$}
+
+    \State $x \gets \textit{Random\ Value}$
+
+    \State $L \gets \{\}$
+
+    \State $s_{\textit{key} = 0}$
+    \\
+    \While {$|L| \neq |V|$}
+      \For {\{ $u \in N(v) \mid v \in V$ \}}
+        \State $x \gets \min N(v)$
+
+        \If {$\textit{vertex } u \textit{not visited}$}
+        \Else
+          \State $x \gets \textit{Next shortest adjacency}$
+        \EndIf
+      \EndFor
+    \EndWhile
+    \\
+    \State $L \gets L \cup {x}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Detail}
+In additional to being fairly easily implemented, the nearest neighbor heuristic
+is also a comparatively quick method. A major attraction of the nearest neighbor
+is that it runs fairly quickly, it has a time complexity of $O(n^2)$ [1].\\
+
+However there some rather large drawbacks to the approximation. A major flaw is
+that in its greed, the tour can miss obvious shorter routes that could be
+identified with more comprehensive algorithms. Additionally for the same reason,
+the method can miss nodes till the end and need to include them at high cost.
+In order to improve the path it would then require additional improvement
+heuristics and approximation algorithms to decrease the cost of the tour and
+increase quality. Though it was both simple and clear, for these reasons the
+approach was not a suitable method for finding an optimal tour.
+
+\end{document}
