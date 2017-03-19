@@ -21,7 +21,7 @@ typedef boost::adjacency_matrix<boost::undirectedS, boost::no_property,
         boost::property <boost::edge_weight_t, double> > Graph;
 		
 template<typename PositionVec>		
-int distance(PositionVec a,PositionVec b){
+int distance(PositionVec &a,PositionVec &b){
     using std::pow;
     using std::sqrt;
 	
@@ -66,7 +66,7 @@ int getTourLength(std::vector<int> tour){
 * Postconditions: Route has been determined and tour calculated
 *********************************************/
 template<typename PositionVector>
-int nearneighbor(PositionVector *position_vec, int numVertices, PositionVector *tour) {
+int nearneighbor(PositionVector &position_vec, PositionVector &tour, int numVertices) {
 //int nearneighbor(int numVertices, int *arr, std::vector<int> cities, std::vector<int> tour){ 
 	
 	bool visited[numVertices];
@@ -100,8 +100,9 @@ int nearneighbor(PositionVector *position_vec, int numVertices, PositionVector *
 		}
     }
 	
-	hike = distance(tour.end(),tour.beginning);
-    tour.push_back(tour.beginning);
+	hike = distance(tour.end(),tour.begin());
+	
+    tour.push_back(tour[0]);
 	
     return hike;
 }
@@ -124,7 +125,7 @@ int main() {
 	PositionVec cities;
 	PositionVec tour;
 		
-	int neartour = nearneighbor(static_cast<PositionVec>(cities),3,static_cast<PositionVec>(tour));
+	int neartour = nearneighbor(cities,tour,3);
 	
 	std::cout << neartour << std::endl;
 	
